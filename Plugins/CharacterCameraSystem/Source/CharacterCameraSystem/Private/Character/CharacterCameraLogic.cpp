@@ -206,7 +206,6 @@ void ACharacterCameraLogic::UpdateCameraSocketLocation(const FVector Offset, con
 #pragma region Target Locking
 void ACharacterCameraLogic::AdjustCurrentTarget(TArray<AActor*>& ActorsToIgnore, EPreviousTargetLockOrientation NextTargetDirection, float Radius)
 {
-	// TODO: adjust this to also use actors to ignore
 	if (TargetLockCharacters.Num() == 0)
 	{
 		if (bDebugTargetLocking)

@@ -175,6 +175,12 @@ void UTargetLockSpringArm::UpdateDesiredArmLocation(bool bDoTrace, bool bDoLocat
 	RelativeSocketRotation = RelCamTM.GetRotation();
 
 	UpdateChildTransforms();
+	
+	if (Character && Character->Execute_GetCameraStyle(Character) != ECameraStyle::TargetLocking)
+	{
+		CurrentTarget = nullptr;
+		bTargetTransition = false;
+	}
 }
 
 
