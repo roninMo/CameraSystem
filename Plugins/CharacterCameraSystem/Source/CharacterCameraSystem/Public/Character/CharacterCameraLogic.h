@@ -102,7 +102,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Camera") virtual void SetCameraStyle_Implementation(ECameraStyle Style) override;
 	
 	/** Returns true if there's no input replication delay for transitioning between different camera modes */
-	UFUNCTION(BlueprintCallable, Category = "Camera") virtual bool TryActivateCameraTransition();
+	UFUNCTION(BlueprintCallable, Category = "Camera") virtual bool AbleToActivateCameraTransition();
 
 	
 protected:

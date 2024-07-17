@@ -82,9 +82,9 @@ void ACharacterCameraLogic::Tick(float DeltaTime)
 #pragma region Camera
 void ACharacterCameraLogic::SetCameraStyle_Implementation(ECameraStyle Style)
 {
-	CameraStyle = Style;
-	if (IsLocallyControlled())
+	if (AbleToActivateCameraTransition())
 	{
+		CameraStyle = Style;
 		Server_SetCameraStyle(Style);
 	}
 }
@@ -98,14 +98,14 @@ void ACharacterCameraLogic::Server_SetCameraStyle_Implementation(ECameraStyle St
 
 
 void ACharacterCameraLogic::ResetCameraTransitionDelay() { bCameraTransitionDelay = false; }
-bool ACharacterCameraLogic::TryActivateCameraTransition()
+bool ACharacterCameraLogic::AbleToActivateCameraTransition()
 {
 	if (bCameraTransitionDelay) return false;
 		
 	GetWorldTimerManager().SetTimer(
 		CameraTransitionDelayHandle,
 		this,
-		&ACharacterCameraLogic::ResetCurrentTargetDelay,
+		&ACharacterCameraLogic::ResetCameraTransitionDelay,
 		FMath::Clamp(InputPressed_ReplicationInterval, 0.2f, 1.0f),
 		false
 	);
