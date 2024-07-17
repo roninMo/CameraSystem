@@ -124,7 +124,7 @@ void ACharacterCameraLogic::OnCameraStyleSet()
 	else if (CameraStyle == ECameraStyle::TargetLocking)
 	{
 		SetRotationToMovement();
-		UpdateCameraArmSettings(GetCameraOffset(Execute_GetCameraStyle(this), Execute_GetCameraOrientation(this)), TargetArmLength, false);
+		UpdateCameraArmSettings(GetCameraOffset(Execute_GetCameraStyle(this), Execute_GetCameraOrientation(this)), TargetArmLength, true, CameraLag);
 	}
 	else if (CameraStyle == ECameraStyle::ThirdPerson)
 	{
@@ -154,7 +154,7 @@ void ACharacterCameraLogic::OnCameraOrientationSet()
 	bool bEnableCameraLag = false;
 	float LagSpeed = 0;
 
-	if (CameraStyle == ECameraStyle::ThirdPerson)
+	if (CameraStyle == ECameraStyle::ThirdPerson || CameraStyle == ECameraStyle::TargetLocking)
 	{
 		CameraLocation = GetCameraOffset(CameraStyle, CameraOrientation);
 		ArmLength = TargetArmLength;
