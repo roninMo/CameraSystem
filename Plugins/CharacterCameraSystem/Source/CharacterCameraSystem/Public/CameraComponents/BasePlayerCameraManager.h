@@ -39,7 +39,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite) FName CameraSocketFirstPerson;
 	UPROPERTY(BlueprintReadWrite) FName CameraSocketThirdPerson;
 	UPROPERTY(BlueprintReadWrite) ECameraOrientation CameraOrientation;
-	UPROPERTY(BlueprintReadWrite) ECameraStyle CamStyle;
 	UPROPERTY(BlueprintReadWrite) TObjectPtr<ACharacterCameraLogic> Character;
 	
 	/** Camera capture values */
@@ -62,31 +61,70 @@ public:
 // Camera update functions                UpdateCamera -> UpdateViewTarget -> UpdateViewTarget_Internal -> CalcCamera	//
 //----------------------------------------------------------------------------------------------------------------------//
 	/**
-	 * This function updates the view target and is extrapolated into multiple functions for blueprint customization and functionality, but I've broken into down into a single function for camera logic
-	 * The default uses a value to determine what camera modes you're using which isn't initialized anywhere, so it always runs the actor's CalcCamera function, or the blueprint Update Camera function.
-	 * I'd rather it branch out from enum types for different camera modes, and let everything else false into place. This handles the camera logic, and checks if the
-	 * blueprint has any logic that should take precedence before handling this logic except instead of doing through the viewTarget_Internal, it's all handled here and branches out to these functions below
+	 * This function updates the view target and is extrapolated into multiple functions for blueprint customization and functionality, but I've broken into down into a single function for camera logic 
+	 * The default uses a value to determine what camera modes you're using which isn't initialized anywhere, so it always runs the actor's CalcCamera function, or the blueprint Update Camera function. \n\n
+	 * I'd rather it branch out from enum types for different camera modes, and let everything else false into place. \n\name
+	 *
+	 * This handles the camera logic, and checks if the blueprint has any logic that should take precedence before handling this logic except
+	 * instead of doing through the viewTarget_Internal, it's all handled here and branches out to these functions below
+	 *
+	 * @returns the camera's view target reference information for updating the camera
 	 */
 	virtual void UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime) override;
 
-	// TODO: I want a more advanced camera where there is technically no pivot point and the view target is the player with a box that the camera doesn't allow the character out of view (with smooth transitions for all scenarios)
-	// This way the camera turns with the player, and functions much like the current camera while moving forward
-	// However if they come towards the camera or go to the side, the camera turns with the player instead of the character just running sideways. This gives a different feel and atmosphere because
-	// The focus isn't on the world, and it's easier to take in your surroundings instead of the camera always being focused on you
+	
+	/**
+	 * The blueprint function for handling updating the player's camera. This is where you add different camera styles and determine what behavior the camera should take
+	 * You're also able to add your own additional logic for handling the camera. \n\n
+	 * 
+	 * The order of operations for the UpdateViewTarget function is -> BlueprintUpdateCamera -> UpdateViewTarget -> UpdateViewTarget(Blueprint) \n
+	 * If BlueprintUpdateCamera returns true, it skips everything else. If BP_UpdateViewTarget returns true, it skips UpdateViewTargetInternal and let's the player handle the camera logic instead
+	 *
+	 * @remarks I've found that the majority of the logic needed is smooth transitions and camera locations, which is handled when the camera style is set.
+	 * The rest of the additional logic is in the @see TargetLockSpringArm component
+	 *
+	 * @param	OutVT				ViewTarget to update.
+	 * @param	DeltaTime			Delta Time since last camera update (in seconds).
+	 * @param	bApplyModifiers		whether UpdateViewTarget should apply camera modifiers
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera", DisplayName = "Update View Target (Blueprint)") void BP_UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime, bool& bApplyModifiers); 
+	void BP_UpdateViewTarget_Implementation(FTViewTarget& OutVT, float DeltaTime, bool& bApplyModifiers);
+	
+	
+	/**
+	 * The camera behavior while the camera style is first person
+	 * @remarks Overriding this in blueprint removes the original logic
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void FirstPersonCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	virtual void FirstPersonCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
+	
+	/**
+	 * The camera behavior while the camera style is third person
+	 * @remarks Overriding this in blueprint removes the original logic
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void ThirdPersonCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	virtual void ThirdPersonCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 
-	// I'd create a mode for aiming where you center the camera so when the player is aiming it's not offset, and cut out all the smoothing everywhere
+	/**
+	 * The camera behavior while the camera style is aiming (in third person)
+	 * @remarks Overriding this in blueprint removes the original logic
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void ThirdPersonAimingCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	virtual void ThirdPersonAimingCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 	
-	/** The logic for the third person camera */
-	UFUNCTION(BlueprintCallable) virtual void ThirdPersonCameraLogic(float DeltaTime, FTViewTarget& OutVT);
+	/**
+	 * The camera behavior while the camera style is target locking
+	 * @remarks Overriding this in blueprint removes the original logic
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void TargetLockCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	virtual void TargetLockCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 
-	/** The logic for third person aiming that's based on a center point */
-	UFUNCTION(BlueprintCallable) virtual void ThirdPersonAimLogic(float DeltaTime, FTViewTarget& OutVT);
-	
-	/** The logic for the first person camera */
-	UFUNCTION(BlueprintCallable) virtual void FirstPersonCameraLogic(float DeltaTime, FTViewTarget& OutVT);
-	
-	/** The logic for the free camera */
-	UFUNCTION(BlueprintCallable) virtual void SpectatorCamLogic(float DeltaTime, FTViewTarget& OutVT);
+	/**
+	 * The camera behavior while the camera style is spectator
+	 * @remarks Overriding this in blueprint removes the original logic
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void SpectatorCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	virtual void SpectatorCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 	
 	
 //--------------------------------------------------------------------------------------------------//

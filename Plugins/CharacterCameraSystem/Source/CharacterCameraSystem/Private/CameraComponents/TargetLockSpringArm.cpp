@@ -20,7 +20,7 @@ void UTargetLockSpringArm::UpdateDesiredArmLocation(bool bDoTrace, bool bDoLocat
 	
 	// If the player is target locking an enemy, update the rotation to face the target 
 	Character = Character ? Character : Cast<ACharacterCameraLogic>(GetOwner());
-	if (Character && Character->Execute_GetCameraStyle(Character) == ECameraStyle::TargetLocking)
+	if (Character && Character->Execute_GetCameraStyle(Character) == CameraStyle_TargetLocking)
 	{
 		AActor* Target = Character->GetCurrentTarget();
 		// The initial transition to a target should be interpolated like so
@@ -37,7 +37,7 @@ void UTargetLockSpringArm::UpdateDesiredArmLocation(bool bDoTrace, bool bDoLocat
 			FRotator TargetRotation = (TargetLocation - PreviousDesiredLoc).Rotation();
 			if (bTargetTransition)
 			{
-				DesiredRotation = FRotator(FMath::QInterpTo(FQuat(PreviousDesiredRot), FQuat(TargetRotation), DeltaTime, TargetTransitionRotationLagSpeed));
+				DesiredRotation = FRotator(FMath::QInterpTo(FQuat(PreviousDesiredRot), FQuat(TargetRotation), DeltaTime, TargetLockTransitionSpeed));
 				if (DesiredRotation.Equals(TargetRotation, 0.4)) bTargetTransition = false;
 			}
 			else DesiredRotation = TargetRotation;
@@ -176,7 +176,7 @@ void UTargetLockSpringArm::UpdateDesiredArmLocation(bool bDoTrace, bool bDoLocat
 
 	UpdateChildTransforms();
 	
-	if (Character && Character->Execute_GetCameraStyle(Character) != ECameraStyle::TargetLocking)
+	if (Character && Character->Execute_GetCameraStyle(Character) != CameraStyle_TargetLocking)
 	{
 		CurrentTarget = nullptr;
 		bTargetTransition = false;

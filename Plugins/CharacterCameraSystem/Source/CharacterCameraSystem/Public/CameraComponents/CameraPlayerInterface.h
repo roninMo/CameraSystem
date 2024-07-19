@@ -24,23 +24,18 @@ class CHARACTERCAMERASYSTEM_API ICameraPlayerInterface
 public:
 	/** Returns the camera style */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility")
-	ECameraStyle GetCameraStyle() const;
-	virtual ECameraStyle GetCameraStyle_Implementation() const;
+	FName GetCameraStyle() const;
+	virtual FName GetCameraStyle_Implementation() const;
 
 	/** Returns the camera orientation */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility") 
 	ECameraOrientation GetCameraOrientation() const;
 	virtual ECameraOrientation GetCameraOrientation_Implementation() const;
 
-	/** Returns the camera socket of the current camera style. Used for finding camera locations for different camera styles */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility") 
-	FName GetCameraSocket(ECameraStyle Style) const;
-	virtual FName GetCameraSocket_Implementation(ECameraStyle Style) const;
-
 	/** Sets the player's camera style, and handles camera transitions and other logic specific to each style. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility")
-	void SetCameraStyle(ECameraStyle Style);
-	virtual void SetCameraStyle_Implementation(ECameraStyle Style);
+	void SetCameraStyle(FName Style);
+	virtual void SetCameraStyle_Implementation(FName Style);
 
 	/** Sets the player's camera orientation */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility")

@@ -22,22 +22,24 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	TObjectPtr<UCameraComponent> FollowCamera;
 	
-	/* Camera information **/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") ECameraStyle CameraStyle; // These are based on the client, but need to be replicated for late joining clients, so we're using both RPC's and replication to achieve this
+
+	/** Camera information */
+	/** The current style of the camera that determines the behavior. The default styles are "Fixed", "Spectator", "FirstPerson", "ThirdPerson", "TargetLocking", and "Aiming". You can also add your own in the BasePlayerCameraManager class */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") FName CameraStyle;
+
+	/** These are based on the client, but need to be replicated for late joining clients, so we're using both RPC's and replication to achieve this */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") ECameraOrientation CameraOrientation;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") FName FirstPersonCamera;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") FName ThirdPersonCamera;
 	
 	UPROPERTY(BlueprintReadWrite) FVector TargetOffset;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") float CameraOrientationInterpSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") float TargetArmLength;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") float CameraLag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") float CameraOrientationTransitionSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") FVector CameraOffset_FirstPerson;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") FVector CameraOffset_Center;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") FVector CameraOffset_Left;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") FVector CameraOffset_Right;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") float TargetArmLength;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") float CameraLag;
 
-	/* Camera post process settings **/
+	/** Camera post process settings */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Post Processing") FPostProcessSettings HideCamera; 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Post Processing") FPostProcessSettings DefaultCameraSettings;
 
@@ -59,7 +61,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Transient) TObjectPtr<AActor> CurrentTarget;
 	UPROPERTY(BlueprintReadWrite, Transient) TArray<AActor*> TargetLockCharacters;
 	UPROPERTY(BlueprintReadWrite, Transient) TArray<FTargetLockInformation> TargetLockData;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera|Target Locking") float TargetLockRadius = 1200.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera|Target Locking") float TargetLockRadius;
+	
+	/** Controls how quickly the camera transitions between targets. @ref ACharacterCameraLogic's TargetLockTransitionSpeed value adjusts this */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera|Target Locking", meta=(ClampMin="0.0", ClampMax="1000.0", UIMin = "0.0", UIMax = "34.0")) float TargetLockTransitionSpeed = 2;
 	
 	/** Target lock Replication interval values */
 	UPROPERTY(BlueprintReadWrite) bool bCurrentTargetDelay;
@@ -99,7 +104,7 @@ public:
 	 * Sets the camera style, and calls the OnCameraStyleSet function for handling camera transitions and other logic specific to each style.
 	 * @remarks OnCameraStyleSet should be called if TryActivateCameraTransition returns true
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Camera") virtual void SetCameraStyle_Implementation(ECameraStyle Style) override;
+	UFUNCTION(BlueprintCallable, Category = "Camera") virtual void SetCameraStyle_Implementation(FName Style) override;
 	
 	/** Returns true if there's no input replication delay for transitioning between different camera modes */
 	UFUNCTION(BlueprintCallable, Category = "Camera") virtual bool AbleToActivateCameraTransition();
@@ -111,7 +116,7 @@ protected:
 	 * It also handles target locking, but not necessarily sorting and updating the targets.
 	 * @remarks Do not spam this please, it'll crash the server and cause other things to also break
 	 */
-	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Camera") virtual void Server_SetCameraStyle(ECameraStyle Style);
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Camera") virtual void Server_SetCameraStyle(FName Style);
 	// TODO: First/Third person values should be sent to the server when a character becomes net relevant, I don't know if this still holds true for characters who join late (OnRep_Notify fixes this)
 	
 	/** Sets Camera transition delay to false to allow you to transition between camera styles */
@@ -195,16 +200,13 @@ protected:
 //-------------------------------------------------------------------------------------//
 public:
 	/** Returns the camera style */
-	virtual ECameraStyle GetCameraStyle_Implementation() const override;
+	virtual FName GetCameraStyle_Implementation() const override;
 	
 	/** Returns the camera orientation */
 	virtual ECameraOrientation GetCameraOrientation_Implementation() const override;
 
 	/** Returns the camera offset based on the camera's style and orientation */
-	UFUNCTION(BlueprintCallable, Category="Camera|Utility") virtual FVector GetCameraOffset(ECameraStyle Style, ECameraOrientation Orientation) const;
-
-	/** Returns the camera socket based on the camera's style and orientation. This is used for adjusting camera locations for different styles */
-	virtual FName GetCameraSocket_Implementation(ECameraStyle Style) const override;
+	UFUNCTION(BlueprintCallable, Category="Camera|Utility") virtual FVector GetCameraOffset(FName Style, ECameraOrientation Orientation) const;
 	
 	/** Checks if the character's rotation is oriented towards the camera, and returns true if so */
 	UFUNCTION(BlueprintCallable, Category="Camera|Utility") virtual bool IsRotationOrientedToCamera() const;
@@ -215,7 +217,9 @@ public:
 	/** Returns the camera arm's length */
 	UFUNCTION(BlueprintCallable, Category="Camera|Utility") virtual float GetCameraArmLength() const;
 
-
+	/** Updates the target lock transition speed for the character and the camera arm */
+	UFUNCTION(BlueprintCallable, Category="Camera|Utility") virtual void SetTargetLockTransitionSpeed(float Speed);
+	
 public:
 	UFUNCTION() virtual TArray<AActor*>& GetTargetLockCharactersReference();
 	UFUNCTION(BlueprintCallable, Category="Camera|Utility") virtual TArray<AActor*> GetTargetLockCharacters() const;

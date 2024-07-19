@@ -23,30 +23,31 @@ ACharacterCameraLogic::ACharacterCameraLogic()
 	// Camera components
 	CameraArm = CreateDefaultSubobject<UTargetLockSpringArm>(TEXT("Camera Arm"));
 	CameraArm->SetupAttachment(RootComponent); // Attach this to the mesh because if we attach this to the root, whenever we crouch the springArm/Camera will move along with it, which is not intended
-	CameraArm->SocketOffset = FVector(0, 0, 125); // Align the camera to the side of the character
-	CameraArm->TargetArmLength = 430.0f; // Distance from the character
+	CameraArm->SocketOffset = FVector(0, 0, 100); // Align the camera to the side of the character
+	CameraArm->TargetArmLength = 340; // Distance from the character
 	CameraArm->bUsePawnControlRotation = true; // Allows us to rotate the camera boom along with our controller when we're adding mouse input
-	CameraArm->ProbeSize = 16.4f;
+	CameraArm->ProbeSize = 16.4;
 	CameraArm->bEnableCameraLag = true;
-	CameraArm->CameraLagSpeed = 2.3f;
-	CameraArm->CameraLagMaxDistance = 100.0f;
+	CameraArm->CameraLagSpeed = 2.3;
+	CameraArm->CameraLagMaxDistance = 100.0;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	FollowCamera->SetupAttachment(CameraArm, USpringArmComponent::SocketName); // Attaches the camera to the camera's spring arm socket
 	
 	// Camera information
-	CameraStyle = ECameraStyle::ThirdPerson;
+	CameraStyle = CameraStyle_ThirdPerson;
 	CameraOrientation = ECameraOrientation::Center;
-	FirstPersonCamera = FName("camera_firstPerson");
-	ThirdPersonCamera = FName("camera_thirdPerson");
 
 	TargetArmLength = 340;
 	CameraLag = 2.3;
-	CameraOrientationInterpSpeed = 2;
-	CameraOffset_FirstPerson = FVector(0.0, 0.0, 64);
+	CameraOrientationTransitionSpeed = 2;
+	CameraOffset_FirstPerson = FVector(10.0, 0.0, 64);
 	CameraOffset_Center = FVector(0.0, 0.0, 100.0);
 	CameraOffset_Left = FVector(0.0, -64.0, 100.0);
 	CameraOffset_Right = FVector(0.0, 64.0, 100.0);
+
+	TargetLockRadius = 1200;
+	TargetLockTransitionSpeed = 8;
 }
 
 
@@ -56,6 +57,7 @@ void ACharacterCameraLogic::BeginPlay()
 
 	OnCameraStyleSet();
 	OnCameraOrientationSet();
+	SetTargetLockTransitionSpeed(TargetLockTransitionSpeed);
 }
 
 
@@ -80,7 +82,7 @@ void ACharacterCameraLogic::Tick(float DeltaTime)
 
 
 #pragma region Camera
-void ACharacterCameraLogic::SetCameraStyle_Implementation(ECameraStyle Style)
+void ACharacterCameraLogic::SetCameraStyle_Implementation(const FName Style)
 {
 	if (AbleToActivateCameraTransition())
 	{
@@ -89,7 +91,7 @@ void ACharacterCameraLogic::SetCameraStyle_Implementation(ECameraStyle Style)
 	}
 }
 
-void ACharacterCameraLogic::Server_SetCameraStyle_Implementation(ECameraStyle Style)
+void ACharacterCameraLogic::Server_SetCameraStyle_Implementation(const FName Style)
 {
 	// TODO: add logic to prevent spamming
 	CameraStyle = Style;
@@ -106,7 +108,7 @@ bool ACharacterCameraLogic::AbleToActivateCameraTransition()
 		CameraTransitionDelayHandle,
 		this,
 		&ACharacterCameraLogic::ResetCameraTransitionDelay,
-		FMath::Clamp(InputPressed_ReplicationInterval, 0.2f, 1.0f),
+		FMath::Clamp(InputPressed_ReplicationInterval, 0.2, 1.0),
 		false
 	);
 	bCameraTransitionDelay = true;
@@ -116,17 +118,17 @@ bool ACharacterCameraLogic::AbleToActivateCameraTransition()
 
 void ACharacterCameraLogic::OnCameraStyleSet()
 {
-	if (CameraStyle == ECameraStyle::FirstPerson)
+	if (CameraStyle == CameraStyle_FirstPerson)
 	{
 		SetRotationToCamera();
 		UpdateCameraArmSettings(CameraOffset_FirstPerson, 0, false);
 	}
-	else if (CameraStyle == ECameraStyle::TargetLocking)
+	else if (CameraStyle == CameraStyle_TargetLocking)
 	{
 		SetRotationToMovement();
 		UpdateCameraArmSettings(GetCameraOffset(Execute_GetCameraStyle(this), Execute_GetCameraOrientation(this)), TargetArmLength, true, CameraLag);
 	}
-	else if (CameraStyle == ECameraStyle::ThirdPerson)
+	else if (CameraStyle == CameraStyle_ThirdPerson)
 	{
 		SetRotationToMovement();
 		UpdateCameraArmSettings(GetCameraOffset(Execute_GetCameraStyle(this), Execute_GetCameraOrientation(this)), TargetArmLength, true, CameraLag);
@@ -154,7 +156,7 @@ void ACharacterCameraLogic::OnCameraOrientationSet()
 	bool bEnableCameraLag = false;
 	float LagSpeed = 0;
 
-	if (CameraStyle == ECameraStyle::ThirdPerson || CameraStyle == ECameraStyle::TargetLocking)
+	if (CameraStyle == CameraStyle_ThirdPerson || CameraStyle == CameraStyle_TargetLocking)
 	{
 		CameraLocation = GetCameraOffset(CameraStyle, CameraOrientation);
 		ArmLength = TargetArmLength;
@@ -187,16 +189,16 @@ void ACharacterCameraLogic::SetRotationToCamera()
 
 void ACharacterCameraLogic::UpdateCameraArmSettings(const FVector CameraLocation, const float SpringArmLength, const bool bEnableCameraLag, const float LagSpeed)
 {
-	CameraArm->TargetArmLength = SpringArmLength; // 430.0f;
+	CameraArm->TargetArmLength = SpringArmLength; // 340.0;
 	CameraArm->bEnableCameraLag = bEnableCameraLag; // true;
-	CameraArm->CameraLagSpeed = LagSpeed; // 2.3f;
+	CameraArm->CameraLagSpeed = LagSpeed; // 2.3;
 	TargetOffset = CameraLocation;
 }
 
 
 void ACharacterCameraLogic::UpdateCameraSocketLocation(const FVector Offset, const float DeltaTime)
 {
-	CameraArm->SocketOffset = UKismetMathLibrary::VInterpTo(CameraArm->SocketOffset, Offset, DeltaTime, CameraOrientationInterpSpeed);
+	CameraArm->SocketOffset = UKismetMathLibrary::VInterpTo(CameraArm->SocketOffset, Offset, DeltaTime, CameraOrientationTransitionSpeed);
 }
 #pragma endregion
 
@@ -216,9 +218,9 @@ void ACharacterCameraLogic::AdjustCurrentTarget(TArray<AActor*>& ActorsToIgnore,
 		bCurrentTargetDelay = false;
 		SetCurrentTarget(nullptr);
 		TrySetServerCurrentTarget();
-		if (CameraStyle == ECameraStyle::TargetLocking)
+		if (CameraStyle == CameraStyle_TargetLocking)
 		{
-			Execute_SetCameraStyle(this, ECameraStyle::ThirdPerson);
+			Execute_SetCameraStyle(this, CameraStyle_ThirdPerson);
 			OnCameraStyleSet();
 		}
 		return;	
@@ -330,7 +332,7 @@ void ACharacterCameraLogic::Server_SetTargetLockData_Implementation(AActor* Targ
 
 void ACharacterCameraLogic::OnTargetLockCharacterUpdated()
 {
-	if (CameraStyle != ECameraStyle::TargetLocking)
+	if (CameraStyle != CameraStyle_TargetLocking)
 	{
 		SetCurrentTarget(nullptr);
 	}
@@ -355,7 +357,7 @@ void ACharacterCameraLogic::TrySetServerCurrentTarget()
 		CurrentTargetDelayHandle,
 		this,
 		&ACharacterCameraLogic::ResetCurrentTargetDelay,
-		FMath::Clamp(InputPressed_ReplicationInterval, 0.4f, 1.0f),
+		FMath::Clamp(InputPressed_ReplicationInterval, 0.4, 1.0),
 		false
 	);
 	
@@ -387,7 +389,7 @@ void ACharacterCameraLogic::ClearTargetLockCharacters(TArray<AActor*>& ActorsToI
 
 
 #pragma region Utility
-ECameraStyle ACharacterCameraLogic::GetCameraStyle_Implementation() const
+FName ACharacterCameraLogic::GetCameraStyle_Implementation() const
 {
 	return CameraStyle;
 }
@@ -399,19 +401,12 @@ ECameraOrientation ACharacterCameraLogic::GetCameraOrientation_Implementation() 
 }
 
 
-FVector ACharacterCameraLogic::GetCameraOffset(const ECameraStyle Style, const ECameraOrientation Orientation) const
+FVector ACharacterCameraLogic::GetCameraOffset(const FName Style, const ECameraOrientation Orientation) const
 {
-	if (ECameraStyle::FirstPerson == Style) return CameraOffset_FirstPerson;
-	if (ECameraOrientation::Center == Orientation) return CameraOffset_Center;
-	if (ECameraOrientation::LeftShoulder == Orientation) return CameraOffset_Left;
+	if (Style == CameraStyle_FirstPerson) return CameraOffset_FirstPerson;
+	if (Orientation == ECameraOrientation::Center) return CameraOffset_Center;
+	if (Orientation == ECameraOrientation::LeftShoulder) return CameraOffset_Left;
 	return CameraOffset_Right;
-}
-
-
-FName ACharacterCameraLogic::GetCameraSocket_Implementation(const ECameraStyle Style) const
-{
-	if (CameraStyle == ECameraStyle::FirstPerson) return FirstPersonCamera;
-	return ThirdPersonCamera;
 }
 
 
@@ -434,10 +429,19 @@ float ACharacterCameraLogic::GetCameraArmLength() const
 	return CameraArm->TargetArmLength;
 }
 
+
+void ACharacterCameraLogic::SetTargetLockTransitionSpeed(const float Speed)
+{
+	TargetLockTransitionSpeed = Speed;
+	if (CameraArm) CameraArm->TargetLockTransitionSpeed = Speed;
+}
+
+
 TArray<AActor*> ACharacterCameraLogic::GetTargetLockCharacters() const
 {
 	return TargetLockCharacters;
 }
+
 
 TArray<AActor*>& ACharacterCameraLogic::GetTargetLockCharactersReference()
 {
@@ -447,7 +451,7 @@ TArray<AActor*>& ACharacterCameraLogic::GetTargetLockCharactersReference()
 
 bool ACharacterCameraLogic::IsTargetLocking() const
 {
-	return CameraStyle == ECameraStyle::TargetLocking;
+	return CameraStyle == CameraStyle_TargetLocking;
 }
 
 

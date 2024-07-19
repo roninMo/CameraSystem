@@ -17,7 +17,7 @@ ABasePlayerCameraManager::ABasePlayerCameraManager(const FObjectInitializer& Obj
 
 	// Camera values
 	CameraOrientation = ECameraOrientation::Center;
-	CamStyle = ECameraStyle::ThirdPerson;
+	CameraStyle = CameraStyle_ThirdPerson;
 	CrouchBlendDuration = 0.5;
 	RotationLagSpeed = 6.4;
 	OutOfBoundsLagSpeed = 43.0;
@@ -37,7 +37,7 @@ void ABasePlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float Delta
 	Character = Character ? Character : Cast<ACharacterCameraLogic>(OutVT.Target);
 	if (Character)
 	{
-		CamStyle = Character->Execute_GetCameraStyle(Character);
+		CameraStyle = Character->Execute_GetCameraStyle(Character);
 		CameraOrientation = Character->Execute_GetCameraOrientation(Character);
 	}
 
@@ -73,21 +73,29 @@ void ABasePlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float Delta
 			OutVT.POV.FOV = OutFOV;
 			bApplyModifiers = true;
 		}
-		else if (CamStyle == ECameraStyle::ThirdPerson || CamStyle == ECameraStyle::TargetLocking)
+		else if (CameraStyle == CameraStyle_FirstPerson)
 		{
-			ThirdPersonCameraLogic(DeltaTime, OutVT);
-		}
-		else if (CamStyle == ECameraStyle::FirstPerson)
-		{
-			FirstPersonCameraLogic(DeltaTime, OutVT);
+			FirstPersonCameraBehavior(DeltaTime, OutVT);
 			bApplyModifiers = true;
 		}
-		else if (CamStyle == ECameraStyle::Spectator)
+		else if (CameraStyle == CameraStyle_ThirdPerson)
 		{
-			SpectatorCamLogic(DeltaTime, OutVT);
+			ThirdPersonCameraBehavior(DeltaTime, OutVT);
+		}
+		else if (CameraStyle == CameraStyle_TargetLocking)
+		{
+			TargetLockCameraBehavior(DeltaTime, OutVT);
+		}
+		else if (CameraStyle == CameraStyle_Aiming)
+		{
+			ThirdPersonAimingCameraBehavior(DeltaTime, OutVT);
+		}
+		else if (CameraStyle == CameraStyle_Spectator)
+		{
+			SpectatorCameraBehavior(DeltaTime, OutVT);
 			bApplyModifiers = true;
 		}
-		else if (CamStyle == ECameraStyle::Fixed)
+		else if (CameraStyle == CameraStyle_Fixed)
 		{
 			// do not update, keep previous camera position by restoring
 			// saved POV, in case CalcCamera changes it but still returns false
@@ -95,8 +103,9 @@ void ABasePlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float Delta
 		}
 		else
 		{
-			UpdateViewTargetInternal(OutVT, DeltaTime);
+			BP_UpdateViewTarget(OutVT, DeltaTime, bApplyModifiers);
 		}
+
 	}
 
 	if (bApplyModifiers || bAlwaysApplyModifiers)
@@ -112,49 +121,65 @@ void ABasePlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float Delta
 }
 
 
-void ABasePlayerCameraManager::ThirdPersonCameraLogic(float DeltaTime, FTViewTarget& OutVT)
+#pragma region Camera behaviors
+void ABasePlayerCameraManager::FirstPersonCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT)
+{
+	// We're still going to use the camera calculations, the only difference is the spring arm length and we disable the rotation lag that's added to the third person camera
+	UpdateViewTargetInternal(OutVT, DeltaTime);
+	
+	// Search for a camera location for this character and get it's information. Otherwise use the actors view point
+	// While transitioning to first person you need to hide the character, just handle this during camera transition logic (OnCameraStyleSet) 
+	// const FName CameraSocketName = GetCameraSocketName(); // <- I think having offsets that fix the arm is easier because camera arm transition smoothing are also added
+	// if (!CameraSocketName.IsNone() && Character && Character->GetMesh())
+	// {
+	// 	const FTransform CameraLocation = Character->GetMesh()->GetSocketTransform(CameraSocketName);
+	// 	OutVT.POV.Location = CameraLocation.GetLocation();
+	// 	if (PCOwner)
+	// 	{
+	// 		OutVT.POV.Rotation = PCOwner->GetControlRotation();
+	// 	}
+	// }
+	// else
+	// {
+	// 	// Simple first person, view through viewtarget's 'eyes'
+	// 	OutVT.Target->GetActorEyesViewPoint(OutVT.POV.Location, OutVT.POV.Rotation);
+	// }
+}
+
+
+void ABasePlayerCameraManager::ThirdPersonCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT)
 {
 	UpdateViewTargetInternal(OutVT, DeltaTime);
 	// Target Lock logic for third person is tied to the spring arm component
 }
 
 
-void ABasePlayerCameraManager::ThirdPersonAimLogic(float DeltaTime, FTViewTarget& OutVT)
-{
-}
 
-
-void ABasePlayerCameraManager::FirstPersonCameraLogic(float DeltaTime, FTViewTarget& OutVT)
+void ABasePlayerCameraManager::ThirdPersonAimingCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT)
 {
-	// We're still going to use the camera calculations, the only difference is the spring arm length and we disable the rotation lag that's added to the third person camera
 	UpdateViewTargetInternal(OutVT, DeltaTime);
-	return;
-	
-	// Search for a camera location for this character and get it's information. Otherwise use the actors view point
-	// While transitioning to first person you need to hide the character and later lets add arms to animate or something
-	const FName CameraSocketName = GetCameraSocketName();
-	if (!CameraSocketName.IsNone() && Character && Character->GetMesh())
-	{
-		const FTransform CameraLocation = Character->GetMesh()->GetSocketTransform(CameraSocketName);
-		OutVT.POV.Location = CameraLocation.GetLocation();
-		if (PCOwner)
-		{
-			OutVT.POV.Rotation = PCOwner->GetControlRotation();
-		}
-	}
-	else
-	{
-		// Simple first person, view through viewtarget's 'eyes'
-		OutVT.Target->GetActorEyesViewPoint(OutVT.POV.Location, OutVT.POV.Rotation);
-	}
+	// Center the character's camera to the specific weapon they're aiming with
 }
 
 
-void ABasePlayerCameraManager::SpectatorCamLogic(float DeltaTime, FTViewTarget& OutVT)
+void ABasePlayerCameraManager::TargetLockCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT)
 {
-	// TODO: Investigate how to go about this the right way, and if we should add any limitations
-	// Don't update the target positions, let the camera use it's active location
+	UpdateViewTargetInternal(OutVT, DeltaTime);
+	// Target lock behavior is handled during the Camera Arm's update logic to handle smoothing and transitions properly
 }
+
+
+void ABasePlayerCameraManager::SpectatorCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT)
+{
+	UpdateViewTargetInternal(OutVT, DeltaTime);
+}
+
+
+void ABasePlayerCameraManager::BP_UpdateViewTarget_Implementation(FTViewTarget& OutVT, float DeltaTime, bool& bApplyModifiers)
+{
+	UpdateViewTargetInternal(OutVT, DeltaTime);
+}
+#pragma endregion 
 
 
 FVector ABasePlayerCameraManager::CalculateCameraDrag(FVector Current, FVector Target, FRotator CameraRotation, float DeltaTime)
@@ -180,7 +205,7 @@ FVector ABasePlayerCameraManager::CalculateCameraDrag(FVector Current, FVector T
 
 FName ABasePlayerCameraManager::GetCameraSocketName()
 {
-	if (CamStyle == ECameraStyle::FirstPerson) return CameraSocketFirstPerson;
+	if (CameraStyle == CameraStyle_FirstPerson) return CameraSocketFirstPerson;
 	return CameraSocketThirdPerson;
 }
 
@@ -220,14 +245,12 @@ void ABasePlayerCameraManager::SetViewTarget(AActor* NewViewTarget, const FViewT
 	Character = Cast<ACharacterCameraLogic>(NewViewTarget);
 	if (Character)
 	{
-		CamStyle = Character->Execute_GetCameraStyle(Character);
+		CameraStyle = Character->Execute_GetCameraStyle(Character);
 		CameraOrientation = Character->Execute_GetCameraOrientation(Character);
-		CameraSocketFirstPerson = Character->Execute_GetCameraSocket(Character, ECameraStyle::FirstPerson);
-		CameraSocketThirdPerson = Character->Execute_GetCameraSocket(Character, ECameraStyle::ThirdPerson);
 	}
 	else
 	{
 		CameraOrientation = ECameraOrientation::Center;
-		CamStyle = ECameraStyle::None;
+		CameraStyle = CameraStyle_None;
 	}
 }

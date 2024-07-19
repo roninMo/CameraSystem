@@ -6,19 +6,16 @@
 #include "PlayerCameraTypes.generated.h"
 
 
-/**
-*	The style of the camera that should be displayed 
-*/
-UENUM(BlueprintType)
-enum class ECameraStyle : uint8
-{
-	None					UMETA(DisplayName = "None"),
-	Fixed					UMETA(DisplayName = "Fixed"),
-	Spectator				UMETA(DisplayName = "Spectator"),
-	FirstPerson				UMETA(DisplayName = "First Person"),
-	ThirdPerson				UMETA(DisplayName = "Third Person"),
-	TargetLocking			UMETA(DisplayName = "Third Person (Target Locking)"),
-};
+/** The different camera styles */
+#define CameraStyle_None FName("None")
+#define CameraStyle_Fixed FName("Fixed")
+#define CameraStyle_Spectator FName("Spectator")
+#define CameraStyle_FirstPerson FName("FirstPerson")
+#define CameraStyle_ThirdPerson FName("ThirdPerson")
+#define CameraStyle_TargetLocking FName("TargetLocking")
+#define CameraStyle_Aiming FName("Aiming")
+
+
 
 
 /**

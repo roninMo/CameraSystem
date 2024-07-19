@@ -4,9 +4,9 @@
 #include "CameraComponents/CameraPlayerInterface.h"
 
 // Add default functionality here for any ICameraPlayerInterface functions that are not pure virtual.
-ECameraStyle ICameraPlayerInterface::GetCameraStyle_Implementation() const
+FName ICameraPlayerInterface::GetCameraStyle_Implementation() const
 {
-	return ECameraStyle::None;
+	return FName();
 }
 
 ECameraOrientation ICameraPlayerInterface::GetCameraOrientation_Implementation() const
@@ -14,12 +14,7 @@ ECameraOrientation ICameraPlayerInterface::GetCameraOrientation_Implementation()
 	return ECameraOrientation::Center;
 }
 
-FName ICameraPlayerInterface::GetCameraSocket_Implementation(ECameraStyle Style) const
-{
-	return FName();
-}
-
-void ICameraPlayerInterface::SetCameraStyle_Implementation(ECameraStyle Style)
+void ICameraPlayerInterface::SetCameraStyle_Implementation(FName Style)
 {
 }
 
