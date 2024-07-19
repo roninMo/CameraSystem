@@ -72,6 +72,7 @@ protected:
 	
 	/** Other */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Debug") bool bDebugCameraStyle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Debug") bool bDebugCameraOrientation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Debug") bool bDebugTargetLocking;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Debug") FColor TargetRadiusColor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Debug") FColor TargetColor;

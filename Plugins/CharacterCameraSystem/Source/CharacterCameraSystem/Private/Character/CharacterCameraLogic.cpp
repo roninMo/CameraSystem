@@ -137,6 +137,13 @@ void ACharacterCameraLogic::OnCameraStyleSet()
 	// If was or is transitioning to target locking
 	OnTargetLockCharacterUpdated();
 
+	if (bDebugCameraStyle)
+	{
+		UE_LOGFMT(CameraLog, Log, "{0}: {1}'s camera style was updated to {2}",
+			*UEnum::GetValueAsString(GetLocalRole()), *GetName(), CameraStyle
+		);
+	}
+	
 	// blueprint logic
 	BP_OnCameraStyleSet();
 }
@@ -166,6 +173,13 @@ void ACharacterCameraLogic::OnCameraOrientationSet()
 	
 	UpdateCameraArmSettings(CameraLocation, ArmLength, bEnableCameraLag, LagSpeed);
 
+	if (bDebugCameraOrientation)
+	{
+		UE_LOGFMT(CameraLog, Log, "{0}: {1}'s camera orientation was updated to {2}",
+			*UEnum::GetValueAsString(GetLocalRole()), *GetName(), *UEnum::GetValueAsString(CameraOrientation)
+		);
+	}
+	
 	// blueprint logic
 	BP_OnCameraOrientationSet();
 }
@@ -256,22 +270,19 @@ void ACharacterCameraLogic::AdjustCurrentTarget(TArray<AActor*>& ActorsToIgnore,
 		TargetLockInfo.AngleFromForwardVector = DeltaRotation.Yaw; // Negative is to the right, positive is to the left
 		TargetLockData.Add(TargetLockInfo);
 		
-		if (bDebugTargetLocking)
-		{
-			UE_LOGFMT(CameraLog, Warning, "{0}: target {1}, RotationFromCharacter: {2}, DistanceToTarget: {3}",
-				*UEnum::GetValueAsString(GetLocalRole()), *GetNameSafe(TargetLockInfo.Target), TargetLockInfo.AngleFromForwardVector, TargetLockInfo.DistanceToTarget
-			);
-		}
+		// if (bDebugTargetLocking)
+		// {
+		// 	UE_LOGFMT(CameraLog, Log, "{0}: target {1}, RotationFromCharacter: {2}, DistanceToTarget: {3}",
+		// 		*UEnum::GetValueAsString(GetLocalRole()), *GetNameSafe(TargetLockInfo.Target), TargetLockInfo.AngleFromForwardVector, TargetLockInfo.DistanceToTarget
+		// 	);
+		// }
 	}
 	
 	// Adjust the array of the characters from left to right (180, -180)
 	TargetLockData.Sort([](const FTargetLockInformation& PreviousTargetData, const FTargetLockInformation& CurrentTargetData) {
 		return PreviousTargetData.AngleFromForwardVector > CurrentTargetData.AngleFromForwardVector;
 	});
-	for (auto Target: TargetLockData)
-	{
-		if (bDebugTargetLocking) UE_LOGFMT(CameraLog, Log, "Adjusted Target List: {0}, YawOffset: {1}", *GetNameSafe(Target.Target), Target.AngleFromForwardVector);
-	}
+	// for (auto Target: TargetLockData) if (bDebugTargetLocking) UE_LOGFMT(CameraLog, Log, "Adjusted Target List: {0}, YawOffset: {1}", *GetNameSafe(Target.Target), Target.AngleFromForwardVector);
 	
 	int32 CurrentTargetIndex = 0;
 	float ClosestToCharacterYaw = 340.0f;
@@ -381,7 +392,18 @@ void ACharacterCameraLogic::ClearTargetLockCharacters(TArray<AActor*>& ActorsToI
 		}
 
 		for (AActor* Target : TargetsToRemove) TargetLockCharacters.Remove(Target);
-	}	
+	}
+
+	if (bDebugTargetLocking)
+	{
+		UE_LOGFMT(CameraLog, Log, "{0}: {1}'s target lock characters were cleared. Remaining characters in list: ", *UEnum::GetValueAsString(GetLocalRole()), *GetName());
+		int Index = 0;
+		for (const AActor* Target : TargetLockCharacters)
+		{
+			UE_LOGFMT(CameraLog, Log, "Target[{0}]: {1}", Index, *GetNameSafe(Target));
+			Index++;
+		}
+	}
 }
 #pragma endregion 
 
