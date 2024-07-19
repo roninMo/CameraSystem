@@ -87,43 +87,33 @@ public:
 	 * @param	DeltaTime			Delta Time since last camera update (in seconds).
 	 * @param	bApplyModifiers		whether UpdateViewTarget should apply camera modifiers
 	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera", DisplayName = "Update View Target (Blueprint)") void BP_UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime, bool& bApplyModifiers); 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera", DisplayName = "Blueprint Update View Target") void BP_UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime, bool& bApplyModifiers); 
 	void BP_UpdateViewTarget_Implementation(FTViewTarget& OutVT, float DeltaTime, bool& bApplyModifiers);
 	
 	
-	/**
-	 * The camera behavior while the camera style is first person
-	 * @remarks Overriding this in blueprint removes the original logic
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void FirstPersonCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	/** The camera behavior while the camera style is first person */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (FirstPerson)") 
+	void FirstPersonCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void FirstPersonCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 	
-	/**
-	 * The camera behavior while the camera style is third person
-	 * @remarks Overriding this in blueprint removes the original logic
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void ThirdPersonCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	/** The camera behavior while the camera style is third person */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (ThirdPerson)") 
+	void ThirdPersonCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void ThirdPersonCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 
-	/**
-	 * The camera behavior while the camera style is aiming (in third person)
-	 * @remarks Overriding this in blueprint removes the original logic
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void ThirdPersonAimingCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	/** The camera behavior while the camera style is aiming (in third person) */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (ThirdPerson - Aiming)") 
+	void ThirdPersonAimingCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void ThirdPersonAimingCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 	
-	/**
-	 * The camera behavior while the camera style is target locking
-	 * @remarks Overriding this in blueprint removes the original logic
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void TargetLockCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	/** The camera behavior while the camera style is target locking */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (ThirdPerson - TargetLock)") 
+	void TargetLockCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void TargetLockCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 
-	/**
-	 * The camera behavior while the camera style is spectator
-	 * @remarks Overriding this in blueprint removes the original logic
-	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives") void SpectatorCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
+	/** The camera behavior while the camera style is spectator */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (Spectator)") 
+	void SpectatorCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void SpectatorCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 	
 	
