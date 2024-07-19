@@ -40,7 +40,7 @@ ACharacterCameraLogic::ACharacterCameraLogic()
 
 	TargetArmLength = 340;
 	CameraLag = 2.3;
-	CameraOrientationTransitionSpeed = 4;
+	CameraOrientationTransitionSpeed = 3.4;
 	CameraOffset_FirstPerson = FVector(10.0, 0.0, 64);
 	CameraOffset_Center = FVector(0.0, 0.0, 100.0);
 	CameraOffset_Left = FVector(0.0, -64.0, 100.0);

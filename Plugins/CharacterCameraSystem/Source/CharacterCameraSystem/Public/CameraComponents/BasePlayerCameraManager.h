@@ -91,27 +91,42 @@ public:
 	void BP_UpdateViewTarget_Implementation(FTViewTarget& OutVT, float DeltaTime, bool& bApplyModifiers);
 	
 	
-	/** The camera behavior while the camera style is first person */
+	/**
+	 * The camera behavior while the camera style is first person
+	 * @remarks Overriding this function replaces the default camera behavior
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (FirstPerson)") 
 	void FirstPersonCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void FirstPersonCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 	
-	/** The camera behavior while the camera style is third person */
+	/**
+	 * The camera behavior while the camera style is third person
+	 * @remarks Overriding this function replaces the default camera behavior
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (ThirdPerson)") 
 	void ThirdPersonCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void ThirdPersonCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 
-	/** The camera behavior while the camera style is aiming (in third person) */
+	/**
+	 * The camera behavior while the camera style is aiming (in third person)
+	 * @remarks Overriding this function replaces the default camera behavior
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (ThirdPerson - Aiming)") 
 	void ThirdPersonAimingCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void ThirdPersonAimingCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 	
-	/** The camera behavior while the camera style is target locking */
+	/**
+	 * The camera behavior while the camera style is target locking
+	 * @remarks Overriding this function replaces the default camera behavior
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (ThirdPerson - TargetLock)") 
 	void TargetLockCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void TargetLockCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
 
-	/** The camera behavior while the camera style is spectator */
+	/**
+	 * The camera behavior while the camera style is spectator
+	 * @remarks Overriding this function replaces the default camera behavior
+	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Perspectives", DisplayName = "Camera Behavior (Spectator)") 
 	void SpectatorCameraBehavior(float DeltaTime, FTViewTarget& OutVT);
 	virtual void SpectatorCameraBehavior_Implementation(float DeltaTime, FTViewTarget& OutVT);
