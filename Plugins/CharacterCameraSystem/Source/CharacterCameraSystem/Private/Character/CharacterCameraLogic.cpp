@@ -12,7 +12,7 @@
 DEFINE_LOG_CATEGORY(CameraLog);
 
 
-ACharacterCameraLogic::ACharacterCameraLogic()
+ACharacterCameraLogic::ACharacterCameraLogic(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Component logic
 	PrimaryActorTick.TickGroup = TG_DuringPhysics;
@@ -23,7 +23,7 @@ ACharacterCameraLogic::ACharacterCameraLogic()
 	// Camera components
 	CameraArm = CreateDefaultSubobject<UTargetLockSpringArm>(TEXT("Camera Arm"));
 	CameraArm->SetupAttachment(RootComponent); // Attach this to the mesh because if we attach this to the root, whenever we crouch the springArm/Camera will move along with it, which is not intended
-	CameraArm->SocketOffset = FVector(0, 0, 100); // Align the camera to the side of the character
+	CameraArm->TargetOffset = FVector(0, 0, 100); 
 	CameraArm->TargetArmLength = 340; // Distance from the character
 	CameraArm->bUsePawnControlRotation = true; // Allows us to rotate the camera boom along with our controller when we're adding mouse input
 	CameraArm->ProbeSize = 16.4;
@@ -42,11 +42,10 @@ ACharacterCameraLogic::ACharacterCameraLogic()
 	CameraLag = 2.3;
 	CameraOrientationTransitionSpeed = 3.4;
 	CameraOffset_FirstPerson = FVector(10.0, 0.0, 64);
-	CameraOffset_Center = FVector(0.0, 0.0, 100.0);
+	CameraOffset_Center = FVector(0.0, 0.0, 123.0);
 	CameraOffset_Left = FVector(0.0, -64.0, 100.0);
 	CameraOffset_Right = FVector(0.0, 64.0, 100.0);
 
-	TargetLockRadius = 1200;
 	TargetLockTransitionSpeed = 6.4;
 }
 
@@ -84,7 +83,7 @@ void ACharacterCameraLogic::Tick(float DeltaTime)
 #pragma region Camera
 void ACharacterCameraLogic::SetCameraStyle_Implementation(const FName Style)
 {
-	if (AbleToActivateCameraTransition())
+	if (IsAbleToActivateCameraTransition())
 	{
 		CameraStyle = Style;
 		Server_SetCameraStyle(Style);
@@ -100,7 +99,7 @@ void ACharacterCameraLogic::Server_SetCameraStyle_Implementation(const FName Sty
 
 
 void ACharacterCameraLogic::ResetCameraTransitionDelay() { bCameraTransitionDelay = false; }
-bool ACharacterCameraLogic::AbleToActivateCameraTransition()
+bool ACharacterCameraLogic::IsAbleToActivateCameraTransition()
 {
 	if (bCameraTransitionDelay) return false;
 		
@@ -212,7 +211,10 @@ void ACharacterCameraLogic::UpdateCameraArmSettings(const FVector CameraLocation
 
 void ACharacterCameraLogic::UpdateCameraSocketLocation(const FVector Offset, const float DeltaTime)
 {
-	CameraArm->SocketOffset = UKismetMathLibrary::VInterpTo(CameraArm->SocketOffset, Offset, DeltaTime, CameraOrientationTransitionSpeed);
+	const FVector SocketOffset = FVector(Offset.X, Offset.Y, 0);
+	const FVector TargetOffset_Z = FVector(0, 0, Offset.Z);
+	CameraArm->SocketOffset = UKismetMathLibrary::VInterpTo(CameraArm->SocketOffset, SocketOffset, DeltaTime, CameraOrientationTransitionSpeed);
+	CameraArm->TargetOffset = UKismetMathLibrary::VInterpTo(CameraArm->TargetOffset, TargetOffset_Z, DeltaTime, CameraOrientationTransitionSpeed);
 }
 #pragma endregion
 
@@ -220,7 +222,7 @@ void ACharacterCameraLogic::UpdateCameraSocketLocation(const FVector Offset, con
 
 
 #pragma region Target Locking
-void ACharacterCameraLogic::AdjustCurrentTarget(TArray<AActor*>& ActorsToIgnore, EPreviousTargetLockOrientation NextTargetDirection, float Radius)
+void ACharacterCameraLogic::AdjustCurrentTarget_Implementation(TArray<AActor*>& ActorsToIgnore, EPreviousTargetLockOrientation NextTargetDirection, float Radius)
 {
 	if (TargetLockCharacters.Num() == 0)
 	{

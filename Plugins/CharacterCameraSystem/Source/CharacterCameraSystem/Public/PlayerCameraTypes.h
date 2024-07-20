@@ -28,7 +28,8 @@ enum class ECameraOrientation : uint8
 	None						UMETA(DisplayName = "None"),
 	Center						UMETA(DisplayName = "Center"),
 	LeftShoulder				UMETA(DisplayName = "Left Shoulder"),
-	RightShoulder				UMETA(DisplayName = "Right Shoulder")
+	RightShoulder				UMETA(DisplayName = "Right Shoulder"),
+	Custom						UMETA(DisplayName = "Custom")
 };
 
 

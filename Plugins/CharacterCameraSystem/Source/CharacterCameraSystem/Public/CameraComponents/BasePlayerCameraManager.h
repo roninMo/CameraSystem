@@ -25,19 +25,23 @@ class CHARACTERCAMERASYSTEM_API ABasePlayerCameraManager : public APlayerCameraM
 	GENERATED_BODY()
 	
 protected:
-	/** Camera smoothing and transition values */
+	/**** Camera smoothing and transition values ****/
+	/** The pivot lag speed used for handling camera drag smoothing and transition speeds */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Camera Manager|Offsets") FVector PivotLagSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Camera Manager|Offsets") FVector CurrentPivotLagSpeed;
-	
+
+	/** The blend duration during crouch transitions */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Camera Manager") float CrouchBlendDuration;
+	/** The blend time of the current crouch transition */
 	UPROPERTY(BlueprintReadWrite) float CrouchBlendTime;
 
+	/** The rotation lag speed */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Camera Manager") float RotationLagSpeed;
+
+	/** The out of bounds lag speed */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=  "Player Camera Manager") float OutOfBoundsLagSpeed;
 
-	/** Camera values derived from the player on possess */
-	UPROPERTY(BlueprintReadWrite) FName CameraSocketFirstPerson;
-	UPROPERTY(BlueprintReadWrite) FName CameraSocketThirdPerson;
+	/**** Camera values derived from the player on possess ****/
+	// UPROPERTY(BlueprintReadWrite) ECameraStyle CamStyle;
 	UPROPERTY(BlueprintReadWrite) ECameraOrientation CameraOrientation;
 	UPROPERTY(BlueprintReadWrite) TObjectPtr<ACharacterCameraLogic> Character;
 	
@@ -136,13 +140,10 @@ public:
 // Camera calculation functions																		//
 //--------------------------------------------------------------------------------------------------//
 	/** Calculates a smooth interpolation between the camera's position and the target location */
-	UFUNCTION(BlueprintCallable) virtual FVector CalculateCameraDrag(FVector Current, FVector Target, FRotator CameraRotation, float DeltaTime);
-
-	/** Returns the camera socket specific to the current camera style */
-	UFUNCTION(BlueprintCallable) virtual FName GetCameraSocketName();
+	UFUNCTION(BlueprintCallable, Category = "Camera|Perspectives") virtual FVector CalculateCameraDrag(FVector Current, FVector Target, FRotator CameraRotation, float DeltaTime);
 
 	/** Handle smooth transitions of crouch logic while the player is crouching in air */
-	UFUNCTION(BlueprintCallable) virtual void InAirCrouchLogic(FTViewTarget& OutVT, float DeltaTime);
+	UFUNCTION(BlueprintCallable, Category = "Camera|Utilities") virtual void InAirCrouchLogic(FTViewTarget& OutVT, float DeltaTime);
 	
 	/** 
 	 * Sets a new ViewTarget.

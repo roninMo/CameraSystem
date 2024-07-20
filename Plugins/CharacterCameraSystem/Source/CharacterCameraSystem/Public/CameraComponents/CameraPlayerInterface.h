@@ -22,23 +22,34 @@ class CHARACTERCAMERASYSTEM_API ICameraPlayerInterface
 	GENERATED_BODY()
 
 public:
-	/** Returns the camera style */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility")
+	/** Returns the camera style. The default styles are "Fixed", "Spectator", "FirstPerson", "ThirdPerson", "TargetLocking", and "Aiming". You can also add your own in the BasePlayerCameraManager class */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Style")
 	FName GetCameraStyle() const;
 	virtual FName GetCameraStyle_Implementation() const;
 
-	/** Returns the camera orientation */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility") 
+	/** Returns the orientation of the camera. This is only valid for third person, however you can adjust this to add your own logic */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Orientation") 
 	ECameraOrientation GetCameraOrientation() const;
 	virtual ECameraOrientation GetCameraOrientation_Implementation() const;
 
-	/** Sets the player's camera style, and handles camera transitions and other logic specific to each style. */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility")
+	/**
+	 * Sets the camera style, and calls the OnCameraStyleSet function for handling camera transitions and other logic specific to each style.
+	 * The default styles are "Fixed", "Spectator", "FirstPerson", "ThirdPerson", "TargetLocking", and "Aiming"
+	 * 
+	 * @remark Overriding this functions removes the default logic for transitioning between styles
+	 * @remark OnCameraStyleSet should be called if TryActivateCameraTransition returns true
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Style")
 	void SetCameraStyle(FName Style);
 	virtual void SetCameraStyle_Implementation(FName Style);
 
-	/** Sets the player's camera orientation */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Utility")
+	/**
+	 * Sets the player's camera orientation.
+	 * 
+	 * @remark Overriding this functions removes the default logic for transitioning between orientations
+	 * @remark OnCameraOrientation should be called if TryActivateCameraOrientation returns true
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera|Orientation")
 	void SetCameraOrientation(ECameraOrientation Orientation);
 	virtual void SetCameraOrientation_Implementation(ECameraOrientation Orientation);
 	

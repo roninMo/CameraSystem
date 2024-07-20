@@ -19,7 +19,6 @@ ABasePlayerCameraManager::ABasePlayerCameraManager(const FObjectInitializer& Obj
 	CameraOrientation = ECameraOrientation::Center;
 	CameraStyle = CameraStyle_ThirdPerson;
 	CrouchBlendDuration = 0.5;
-	RotationLagSpeed = 6.4;
 	OutOfBoundsLagSpeed = 43.0;
 }
 
@@ -190,8 +189,6 @@ FVector ABasePlayerCameraManager::CalculateCameraDrag(FVector Current, FVector T
 	const FQuat CameraRotationQuaternion = CameraRotation.Quaternion();
 	const FVector UnRotatedCurrentLocation = UKismetMathLibrary::Quat_UnrotateVector(CameraRotationQuaternion, Current);
 	const FVector UnRotatedTargetLocation = UKismetMathLibrary::Quat_UnrotateVector(CameraRotationQuaternion, Target);
-
-	// TODO: Adjust the pivot lag speed to handle faster speeds
 	const FVector CameraDragLocation = FVector(
 		UKismetMathLibrary::FInterpTo(UnRotatedCurrentLocation.X, UnRotatedTargetLocation.X, DeltaTime, PivotLagSpeed.X),
 		UKismetMathLibrary::FInterpTo(UnRotatedCurrentLocation.Y, UnRotatedTargetLocation.Y, DeltaTime, PivotLagSpeed.Y),
@@ -200,13 +197,6 @@ FVector ABasePlayerCameraManager::CalculateCameraDrag(FVector Current, FVector T
 
 	UKismetMathLibrary::Quat_RotateVector(CameraRotationQuaternion, CameraDragLocation);
 	return CameraDragLocation;
-}
-
-
-FName ABasePlayerCameraManager::GetCameraSocketName()
-{
-	if (CameraStyle == CameraStyle_FirstPerson) return CameraSocketFirstPerson;
-	return CameraSocketThirdPerson;
 }
 
 
