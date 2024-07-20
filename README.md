@@ -11,11 +11,11 @@ The `Camera System` helps with logic for handling smooth transitions between dif
 
 <br><br/>
 # Setup
-
 The primary components for creating a good camera system are the `CharacterCamera` and `BaseCameraManager`. Just have your character component use the CharacterCamera class, and the controller use the proper CameraManager class, and customize any other logic you'd like to adjust
 
 ![CameraSystemTutorial](/images/CameraSystemTutorial.png)
 
+There's also blueprint examples for reference!
 
 
 
@@ -175,3 +175,6 @@ If you'd like to adjust one of the behaviors or create your own custom camera lo
 ![CameraSystemTutorial](/images/CameraSystemTutorial_10.png)
 ![CameraSystemTutorial](/images/CameraSystemTutorial_12.png)
 
+
+
+## Happy Coding (:
