@@ -2,7 +2,7 @@
 
 The `Camera System` helps with logic for handling smooth transitions between different camera behaviors, and has built in logic for first, third, and target lock logic with smooth movement and easy to implement customization. 
 
-![CaneraSystemTutorial](/images/CameraSystemImage.png)
+![CameraSystemTutorial](/images/CameraSystemImage.png)
 
 `Hopefully this saves you time and effort while you're developing things`
 
@@ -14,7 +14,7 @@ The `Camera System` helps with logic for handling smooth transitions between dif
 
 The primary components for creating a good camera system are the `CharacterCamera` and `BaseCameraManager`. Just have your character component use the CharacterCamera class, and the controller use the proper CameraManager class, and customize any other logic you'd like to adjust
 
-![CaneraSystemTutorial](/images/CaneraSystemTutorial.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial.png)
 
 
 
@@ -26,7 +26,7 @@ The primary components for creating a good camera system are the `CharacterCamer
 ## Create the Camera Character
 Begin by creating the `CharacterCameraLogic` component blueprint, and once you've created the class open the CameraCharacter details panel to adjust the settings
 
-![CaneraSystemTutorial](/images/CameraSystemTutorial_2.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_2.png)
 
 
 
@@ -35,7 +35,7 @@ Begin by creating the `CharacterCameraLogic` component blueprint, and once you'v
 ## `CharacterCameraComponent` Settings
 There's a lot of settings for adjusting the transitions, and the locations for every camera style. Some camera arm settings are also here, just to make things easier, so edit these values and let the character camera logic handle everything else. 
 
-![CaneraSystemTutorial](/images/CameraSystemTutorial_3.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_3.png)
 
 <br><br/>
 Here's a list of what everything does:
@@ -65,7 +65,7 @@ Once you open the character camera component, just search through the list of fu
 #### `SetCameraStyle`
 This calls `TryActivateCameraTransition` to prevent network problems, and then updates the camera style on the server if it succeeds. If everything is good, `OnCameraStyleSet` is then invoked and you can override this in your blueprint for adding your own logic when the camera style is adjusted. 
 	
-![CaneraSystemTutorial](/images/CameraSystemTutorial_3.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_3.png)
 
 <br><br/>
 Here's example code of what's handled during `OnCameraStyleSet`:
@@ -104,7 +104,7 @@ Here's example code of what's handled during `OnCameraStyleSet`:
 	}
 ```
 
-![CaneraSystemTutorial](/images/CameraSystemTutorial_3_.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_3_.png)
 
 
 
@@ -143,8 +143,8 @@ This adjusts the camera orientation, and then calls `OnCameraOrientationSet`. By
 	 }
 ```
 
-![CaneraSystemTutorial](/images/CameraSystemTutorial_4.png)
-![CaneraSystemTutorial](/images/CameraSystemTutorial_5.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_4.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_5.png)
 
 
 
@@ -153,8 +153,8 @@ This adjusts the camera orientation, and then calls `OnCameraOrientationSet`. By
 #### `Target Locking`
 Once you add targets to the character list, use the `AdjustCurrentTarget` function for handling transitioning between each of the targets. By default the target it first selects is the one closest to where the player is aiming, and after that if you pass in the orientation left/right to navigate betwwen the target list. It handles determining where the characters are with reference to the character, and you can override this to add custom logic here for how you want to transition between targets. Here's example blueprint code for target locking: 
 
-![CaneraSystemTutorial](/images/CameraSystemTutorial_7.png)
-![CaneraSystemTutorial](/images/CameraSystemTutorial_8.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_7.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_8.png)
 
 
 
@@ -163,7 +163,7 @@ Once you add targets to the character list, use the `AdjustCurrentTarget` functi
 #### Set function and Delegate function overrides
 There's overrides for the logic that handles the camera logic and events for when something happens, and both are blueprints to keep that in mind whule you're developing
 
-![CaneraSystemTutorial](/images/CameraSystemTutorial_9.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_9.png)
 
 
 
@@ -172,6 +172,6 @@ There's overrides for the logic that handles the camera logic and events for whe
 ## Camera Behavior Customization and Adding Behaviors
 If you'd like to adjust one of the behaviors or create your own custom camera logic, there's already functions in place for this. Create a custom `BasePlayerCameraManager` class, and override these functions for this. `BlueprintUpdateViewTarget` allows you to add additional behaviors
 
-![CaneraSystemTutorial](/images/CameraSystemTutorial_10.png)
-![CaneraSystemTutorial](/images/CameraSystemTutorial_12.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_10.png)
+![CameraSystemTutorial](/images/CameraSystemTutorial_12.png)
 
