@@ -78,34 +78,37 @@ This calls `TryActivateCameraTransition` to prevent network problems, and then u
 Here's example code of what's handled during `OnCameraStyleSet`:
 
 ``` c++
- 	if (CameraStyle == CameraStyle_FirstPerson)
- 	{
- 		SetRotationToCamera();
- 		UpdateCameraArmSettings(CameraOffset_FirstPerson, 0, false);
- 	}
- 	else if (CameraStyle == CameraStyle_TargetLocking)
- 	{
- 		SetRotationToMovement();
- 		UpdateCameraArmSettings(GetCameraOffset(Execute_GetCameraStyle(this), Execute_GetCameraOrientation(this)), TargetArmLength, true, CameraLag);
- 	}
- 	else if (CameraStyle == CameraStyle_ThirdPerson)
- 	{
- 		SetRotationToMovement();
- 		UpdateCameraArmSettings(GetCameraOffset(Execute_GetCameraStyle(this), Execute_GetCameraOrientation(this)), TargetArmLength, true, CameraLag);
- 	}
- 
- 	// If was or is transitioning to target locking
- 	OnTargetLockCharacterUpdated();
- 
- 	if (bDebugCameraStyle)
- 	{
- 		UE_LOGFMT(CameraLog, Log, "{0}: {1}'s camera style was updated to {2}",
- 			*UEnum::GetValueAsString(GetLocalRole()), *GetName(), CameraStyle
- 		);
- 	}
- 	
- 	// blueprint logic
- 	BP_OnCameraStyleSet();
+	void ACharacterCameraLogic::OnCameraStyleSet()
+	{
+		if (CameraStyle == CameraStyle_FirstPerson)
+		{
+			SetRotationToCamera();
+			UpdateCameraArmSettings(CameraOffset_FirstPerson, 0, false);
+		}
+		else if (CameraStyle == CameraStyle_TargetLocking)
+		{
+			SetRotationToMovement();
+			UpdateCameraArmSettings(GetCameraOffset(Execute_GetCameraStyle(this), Execute_GetCameraOrientation(this)), TargetArmLength, true, CameraLag);
+		}
+		else if (CameraStyle == CameraStyle_ThirdPerson)
+		{
+			SetRotationToMovement();
+			UpdateCameraArmSettings(GetCameraOffset(Execute_GetCameraStyle(this), Execute_GetCameraOrientation(this)), TargetArmLength, true, CameraLag);
+		}
+	
+		// If was or is transitioning to target locking
+		OnTargetLockCharacterUpdated();
+	
+		if (bDebugCameraStyle)
+		{
+			UE_LOGFMT(CameraLog, Log, "{0}: {1}'s camera style was updated to {2}",
+				*UEnum::GetValueAsString(GetLocalRole()), *GetName(), CameraStyle
+			);
+		}
+		
+		// blueprint logic
+		BP_OnCameraStyleSet();
+	}
 ```
 
 ![CaneraSystemTutorial_3_](https://github.com/user-attachments/assets/5b17704e-2e2e-4b9e-b882-388c452384f3)
@@ -118,33 +121,33 @@ Here's example code of what's handled during `OnCameraStyleSet`:
 This adjusts the camera orientation, and then calls `OnCameraOrientationSet`. By default, `OnCameraOrientationSet` updates the camera arm location, and if you want to customize this you'll have to invoke `UpdateCameraArmSettings` in the blueprint. It won't cause any problems because the transition logic is handled during runtime to create smooth transitions with `UpdateCameraSocketLocation`, the values it uses are from the update camera arm settings function. Here's example code on how to use `SetCameraOrientation`:
 
 ``` c++
- void ACharacterCameraLogic::OnCameraOrientationSet()
- {
- 	FVector CameraLocation = CameraOffset_FirstPerson;
- 	float ArmLength = 0;
- 	bool bEnableCameraLag = false;
- 	float LagSpeed = 0;
- 
- 	if (CameraStyle == CameraStyle_ThirdPerson || CameraStyle == CameraStyle_TargetLocking)
- 	{
- 		CameraLocation = GetCameraOffset(CameraStyle, CameraOrientation);
- 		ArmLength = TargetArmLength;
- 		bEnableCameraLag = true;
- 		LagSpeed = CameraLag;
- 	}
- 	
- 	UpdateCameraArmSettings(CameraLocation, ArmLength, bEnableCameraLag, LagSpeed);
- 
- 	if (bDebugCameraOrientation)
- 	{
- 		UE_LOGFMT(CameraLog, Log, "{0}: {1}'s camera orientation was updated to {2}",
- 			*UEnum::GetValueAsString(GetLocalRole()), *GetName(), *UEnum::GetValueAsString(CameraOrientation)
- 		);
- 	}
- 	
- 	// blueprint logic
- 	BP_OnCameraOrientationSet();
- }
+	void ACharacterCameraLogic::OnCameraOrientationSet()
+	{
+		FVector CameraLocation = CameraOffset_FirstPerson;
+		float ArmLength = 0;
+		bool bEnableCameraLag = false;
+		float LagSpeed = 0;
+		
+		if (CameraStyle == CameraStyle_ThirdPerson || CameraStyle == CameraStyle_TargetLocking)
+		{
+			CameraLocation = GetCameraOffset(CameraStyle, CameraOrientation);
+			ArmLength = TargetArmLength;
+			bEnableCameraLag = true;
+			LagSpeed = CameraLag;
+		}
+		
+		UpdateCameraArmSettings(CameraLocation, ArmLength, bEnableCameraLag, LagSpeed);
+		
+		if (bDebugCameraOrientation)
+		{
+			UE_LOGFMT(CameraLog, Log, "{0}: {1}'s camera orientation was updated to {2}",
+				*UEnum::GetValueAsString(GetLocalRole()), *GetName(), *UEnum::GetValueAsString(CameraOrientation)
+			);
+		}
+		
+		// blueprint logic
+		BP_OnCameraOrientationSet();
+	 }
 ```
 
 ![CaneraSystemTutorial_4](https://github.com/user-attachments/assets/dd92b33f-803b-4d14-b240-d8d3f18b6f0c)
@@ -153,31 +156,31 @@ This adjusts the camera orientation, and then calls `OnCameraOrientationSet`. By
 
 
 
+<br><br/>
+#### `Target Locking`
+Once you add targets to the character list, use the `AdjustCurrentTarget` function for handling transitioning between each of the targets. By default the target it first selects is the one closest to where the player is aiming, and after that if you pass in the orientation left/right to navigate betwwen the target list. It handles determining where the characters are with reference to the character, and you can override this to add custom logic here for how you want to transition between targets. Here's example blueprint code for target locking: 
+
+![CaneraSystemTutorial_7](https://github.com/user-attachments/assets/f2e8fb2d-1eca-4066-b6eb-0537fbfb7f8e)
+![CaneraSystemTutorial_8](https://github.com/user-attachments/assets/12438f52-42f1-4668-bd9a-486e61267054)
 
 
 
 
+<br><br/>
+#### Set function and Delegate function overrides
+There's overrides for the logic that handles the camera logic and events for when something happens, and both are blueprints to keep that in mind whule you're developing
 
-
-- Functions
-  - Camera Style
-  - Camera Orientation
-  - Target Locking
-  - Customization and Additional Logic
-  - UpdateCameraArmSettings
-
-
-- Create the BasePlayerCameraManager class, and add it to the player controller's PlayerCameraManager class
-- Camera Manager class functions and customization
-  - Adding additional camera behaviors
-  - Overriding the current camera behaviors
-  - Original BlueprintUpdateCamera functions
+![CaneraSystemTutorial_9](https://github.com/user-attachments/assets/a941d566-412b-425c-888c-319c380f038f)
 
 
 
 
+<br><br/>
+## Camera Behavior Customization and Adding Behaviors
+If you'd like to adjust one of the behaviors or create your own custom camera logic, there's already functions in place for this. Create a custom `BasePlayerCameraManager` class, and override these functions for this. `BlueprintUpdateViewTarget` allows you to add additional behaviors
 
-
+![CaneraSystemTutorial_10](https://github.com/user-attachments/assets/e6b84683-8550-436c-bbe5-4ebda0b32f5d)
+![CaneraSystemTutorial_12](https://github.com/user-attachments/assets/652a84cf-9f8b-4728-89a9-e6f6c8fb2e0d)
 
 
 
