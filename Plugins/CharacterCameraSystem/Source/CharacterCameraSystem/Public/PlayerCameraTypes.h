@@ -22,7 +22,7 @@
 *	The third person orientation of the camera
 *	This is used to determine what pivot location on the skeletal mesh is used for the camera position
 */
-UENUM(BlueprintType)
+UENUM(BlueprintType, Category = "Camera")
 enum class ECameraOrientation : uint8
 {
 	None						UMETA(DisplayName = "None"),
@@ -36,7 +36,7 @@ enum class ECameraOrientation : uint8
 /**
 *	What direction is the transition from the previous target to the current target? Is it from the left side? 
 */
-UENUM(BlueprintType)
+UENUM(BlueprintType, Category = "Camera")
 enum class EPreviousTargetLockOrientation : uint8
 {
 	None						UMETA(DisplayName = "None"),
@@ -59,8 +59,8 @@ class CHARACTERCAMERASYSTEM_API UCameraPostProcessingSettings : public UDataAsse
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) FPostProcessSettings HideCamera;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) FPostProcessSettings DefaultCameraSettings;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera") FPostProcessSettings HideCamera;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera") FPostProcessSettings DefaultCameraSettings;
 	
 	
 };
@@ -71,7 +71,7 @@ public:
 /*
 * Target lock information for quickly finding how close a target is to the player, and how far to one side they are
 */
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, Category = "Camera")
 struct FTargetLockInformation
 {
 	GENERATED_USTRUCT_BODY()
@@ -87,8 +87,8 @@ struct FTargetLockInformation
 	{}
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)                     AActor* Target;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)                     float DistanceToTarget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)                     float AngleFromForwardVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera")                     AActor* Target;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera")                     float DistanceToTarget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera")                     float AngleFromForwardVector;
     
 };

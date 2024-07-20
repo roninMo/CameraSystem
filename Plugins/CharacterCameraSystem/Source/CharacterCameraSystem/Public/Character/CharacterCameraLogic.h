@@ -30,7 +30,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera") ECameraOrientation CameraOrientation;
 
 	/** The target camera location that we interp to during transitions between different camera orientations */
-	UPROPERTY(BlueprintReadWrite) FVector TargetOffset;
+	UPROPERTY(BlueprintReadWrite, Category = "Camera") FVector TargetOffset;
 	
 	/** The camera orientation transition speed */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta=(ClampMin="0.0", UIMin = "0.0", UIMax = "34.0")) float CameraOrientationTransitionSpeed;

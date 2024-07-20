@@ -23,17 +23,17 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="Target Locking") FVector TargetLockOffset = FVector(0.0, 0.0, 34.0);
 
 	/** The current target lock character, derived from @ref ACharacterCameraLogic's target lock logic */
-	UPROPERTY(BlueprintReadWrite) TObjectPtr<AActor> CurrentTarget;
+	UPROPERTY(BlueprintReadWrite, Category="Target Locking") TObjectPtr<AActor> CurrentTarget;
 
 
 protected:
-	UPROPERTY(BlueprintReadWrite) TObjectPtr<ACharacterCameraLogic> Character;
-	UPROPERTY(BlueprintReadWrite) bool bTargetTransition;
+	UPROPERTY(BlueprintReadWrite, Category="Target Locking") TObjectPtr<ACharacterCameraLogic> Character;
+	UPROPERTY(BlueprintReadWrite, Category="Target Locking") bool bTargetTransition;
 
 	
 public:
 	/** Updates the target lock offset */
-	UFUNCTION(BlueprintCallable) virtual void UpdateTargetLockOffset(FVector Offset);
+	UFUNCTION(BlueprintCallable, Category="Target Locking") virtual void UpdateTargetLockOffset(FVector Offset);
 	
 	
 protected:

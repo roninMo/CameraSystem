@@ -32,7 +32,7 @@ protected:
 	/** The blend duration during crouch transitions */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Camera Manager") float CrouchBlendDuration;
 	/** The blend time of the current crouch transition */
-	UPROPERTY(BlueprintReadWrite) float CrouchBlendTime;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager") float CrouchBlendTime;
 
 	/** The rotation lag speed */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Camera Manager") float RotationLagSpeed;
@@ -42,19 +42,19 @@ protected:
 
 	/**** Camera values derived from the player on possess ****/
 	// UPROPERTY(BlueprintReadWrite) ECameraStyle CamStyle;
-	UPROPERTY(BlueprintReadWrite) ECameraOrientation CameraOrientation;
-	UPROPERTY(BlueprintReadWrite) TObjectPtr<ACharacterCameraLogic> Character;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager") ECameraOrientation CameraOrientation;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager") TObjectPtr<ACharacterCameraLogic> Character;
 	
-	/** Camera capture values */
-	UPROPERTY(BlueprintReadWrite) FMinimalViewInfo PreviousView;
-	UPROPERTY(BlueprintReadWrite) FVector CharacterLocation;
-	UPROPERTY(BlueprintReadWrite) FRotator CharacterRotation;
-	UPROPERTY(BlueprintReadWrite) FVector TargetLocation;
-	UPROPERTY(BlueprintReadWrite) FRotator TargetRotation;
-	UPROPERTY(BlueprintReadWrite) FVector SmoothTargetLocation;
-	UPROPERTY(BlueprintReadWrite) FRotator SmoothTargetRotation;
-	UPROPERTY(BlueprintReadWrite) FVector CalculatedLocation;
-	UPROPERTY(BlueprintReadWrite) FRotator CalculatedRotation;
+	/** Camera view target values */
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FMinimalViewInfo PreviousView;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FVector CharacterLocation;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FRotator CharacterRotation;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FVector TargetLocation;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FRotator TargetRotation;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FVector SmoothTargetLocation;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FRotator SmoothTargetRotation;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FVector CalculatedLocation;
+	UPROPERTY(BlueprintReadWrite, Category = "Player Camera Manager|Update View Target") FRotator CalculatedRotation;
 
 	
 public:
