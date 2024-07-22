@@ -41,18 +41,18 @@ There's a lot of settings for adjusting the transitions, and the locations for e
 Here's a list of what everything does:
 
 | Values 							| Description						|
-| ---									                         | -----------						|
-| CameraStyle							                   | The current style of the camera that determines the behavior. The default styles are `Fixed`, `Spectator`, `FirstPerson`, `ThirdPerson`, `TargetLocking`, and `Aiming`. You can also add your own in the BasePlayerCameraManager class |
-| CameraOrientation 					              | These are based on the client, but need to be replicated for late joining clients, so we're using both RPC's and replication to achieve this |
-| CameraOrientation Transition Speed 	 | The camera orientation transition speed |
-| Target Lock Transition Speed 			     | Controls how quickly the camera transitions between targets. `ACharacterCameraLogic`'s **TargetLockTransitionSpeed** value adjusts this |
-| Camera Offset First Person 			       | The first person camera's location |
-| Camera Offset Center 					           | The third person camera's default location |
-| Camera Offset Left 					             | The third person camera's left side location |
-| Camera Offset Right 					            | The third person camera's right side location |
-| Camera Lag 							                   | The camera lag of the arm. @remarks This overrides the value of the camera arm's lag |
-| Target Arm Length 					              | The target arm length of the camera arm. @remarks This overrides the value of the camera arm's target arm length |
-| Input Pressed Replication Interval 	 | The interval for when the player is allowed to transition between camera styles. This is used for network purposes |
+| ---								| -----------						|
+| CameraStyle							| The current style of the camera that determines the behavior. The default styles are `Fixed`, `Spectator`, `FirstPerson`, `ThirdPerson`, `TargetLocking`, and `Aiming`. You can also add your own in the BasePlayerCameraManager class |
+| CameraOrientation 					        | These are based on the client, but need to be replicated for late joining clients, so we're using both RPC's and replication to achieve this |
+| CameraOrientation Transition Speed 	 			| The camera orientation transition speed |
+| Target Lock Transition Speed 			     		| Controls how quickly the camera transitions between targets. `ACharacterCameraLogic`'s **TargetLockTransitionSpeed** value adjusts this |
+| Camera Offset First Person 			       		| The first person camera's location |
+| Camera Offset Center 					        | The third person camera's default location |
+| Camera Offset Left 					        | The third person camera's left side location |
+| Camera Offset Right 					        | The third person camera's right side location |
+| Camera Lag 							| The camera lag of the arm. @remarks This overrides the value of the camera arm's lag |
+| Target Arm Length 					        | The target arm length of the camera arm. @remarks This overrides the value of the camera arm's target arm length |
+| Input Pressed Replication Interval 	 			| The interval for when the player is allowed to transition between camera styles. This is used for network purposes |
 	
 
 
