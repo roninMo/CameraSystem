@@ -40,7 +40,7 @@ There's a lot of settings for adjusting the transitions, and the locations for e
 <br><br/>
 Here's a list of what everything does:
 
-| CameraStyle 							| Description						|
+| Values 							| Description						|
 | ---									                         | -----------						|
 | CameraStyle							                   | The current style of the camera that determines the behavior. The default styles are `Fixed`, `Spectator`, `FirstPerson`, `ThirdPerson`, `TargetLocking`, and `Aiming`. You can also add your own in the BasePlayerCameraManager class |
 | CameraOrientation 					              | These are based on the client, but need to be replicated for late joining clients, so we're using both RPC's and replication to achieve this |
