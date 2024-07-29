@@ -18,7 +18,7 @@
 		{
 			"Name": "CharacterCameraSystem",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PreDefault"
 		}
 	]
 }
